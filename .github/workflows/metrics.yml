@@ -26,8 +26,14 @@ jobs:
       # watchers, releases, disk usage, and lines added/removed.
       # habits adds the commits-by-hour, commits-by-day and language
       # activity charts.
+      # Uses a patched fork, not lowlighter/metrics@latest. GitHub removed
+      # `commits` from PushEvent payloads, which crashes the habits plugin
+      # upstream for everyone; the fork resolves commits from the pushed
+      # before...head range instead. Switch back to lowlighter/metrics@latest
+      # once that fix is merged upstream.
+      # Note: a fork builds the docker image from source, so runs are slower.
       - name: Main dashboard
-        uses: lowlighter/metrics@latest
+        uses: Alexander-288/metrics@fix-habits-pushevent-commits
         with:
           token: ${{ secrets.METRICS_TOKEN }}
           user: alexander-288
@@ -43,12 +49,16 @@ jobs:
           plugin_lines: yes
           plugin_lines_sections: base
 
-          # Coding habits is DISABLED: it is broken upstream, not
-          # misconfigured. GitHub removed `commits` from the PushEvent
-          # payload of the events API, so the plugin crashes with
-          # "Cannot destructure property 'author' of 'undefined'".
-          # Verified against other accounts — it fails for everyone.
-          plugin_habits: no
+          # Coding habits: hour-of-day, day-of-week, language activity.
+          # Works only on the patched fork referenced above.
+          plugin_habits: yes
+          plugin_habits_facts: yes
+          plugin_habits_charts: yes
+          plugin_habits_charts_type: classic
+          plugin_habits_from: 200
+          plugin_habits_days: 14
+          plugin_habits_trim: yes
+          plugin_habits_languages_limit: 3
 
           # Mastered technologies. These come from the topics you star at
           # github.com/topics — star one and it appears here as an icon.
@@ -72,9 +82,9 @@ jobs:
           # Suggested tracks. Playlist mode needs no secrets — the
           # provider is inferred from the public playlist URL. Swap the
           # URL below for your own playlist.
-          # The provider is NOT inferred from the URL — it must be set.
-          plugin_music: yes
-          plugin_music_provider: spotify
-          plugin_music_mode: playlist
-          plugin_music_playlist: https://open.spotify.com/embed/playlist/37i9dQZF1DX5trt9i14X7j
-          plugin_music_limit: 3
+          # Suggested tracks is DISABLED. Playlist mode scrapes the Spotify
+          # embed page with a headless browser, and Spotify changed that
+          # page's markup, so it now fails with
+          # "Failed to execute 'getComputedStyle' ... not of type 'Element'".
+          # Scraping could never do hand-picked tracks anyway.
+          plugin_music: no
