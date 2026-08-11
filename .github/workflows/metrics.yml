@@ -26,14 +26,13 @@ jobs:
       # watchers, releases, disk usage, and lines added/removed.
       # habits adds the commits-by-hour, commits-by-day and language
       # activity charts.
-      # Uses a patched fork, not lowlighter/metrics@latest. GitHub removed
-      # `commits` from PushEvent payloads, which crashes the habits plugin
-      # upstream for everyone; the fork resolves commits from the pushed
-      # before...head range instead. Switch back to lowlighter/metrics@latest
-      # once that fix is merged upstream.
-      # Note: a fork builds the docker image from source, so runs are slower.
+      # Must be the upstream action. A forked action has no prebuilt-image
+      # path — it runs `docker build` on every run, on a fresh runner, which
+      # takes 40+ minutes. Only lowlighter/* pulls the prebuilt image.
+      # The habits fix therefore lives in a fork we cannot practically run;
+      # see docs/SETUP.md.
       - name: Main dashboard
-        uses: Alexander-288/metrics@fix-habits-pushevent-commits
+        uses: lowlighter/metrics@latest
         with:
           token: ${{ secrets.METRICS_TOKEN }}
           user: alexander-288
@@ -49,16 +48,11 @@ jobs:
           plugin_lines: yes
           plugin_lines_sections: base
 
-          # Coding habits: hour-of-day, day-of-week, language activity.
-          # Works only on the patched fork referenced above.
-          plugin_habits: yes
-          plugin_habits_facts: yes
-          plugin_habits_charts: yes
-          plugin_habits_charts_type: classic
-          plugin_habits_from: 200
-          plugin_habits_days: 14
-          plugin_habits_trim: yes
-          plugin_habits_languages_limit: 3
+          # Coding habits is DISABLED: broken upstream, not misconfigured.
+          # GitHub removed `commits` from PushEvent payloads, so the plugin
+          # throws "Cannot destructure property 'author' of 'undefined'" for
+          # every user. Fixed in the fork, which cannot be run economically.
+          plugin_habits: no
 
           # Mastered technologies. These come from the topics you star at
           # github.com/topics — star one and it appears here as an icon.
