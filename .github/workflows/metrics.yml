@@ -7,6 +7,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Two runs committing metrics.svg at once make the second fail its
+# post-commit verification, so only one may be in flight.
+concurrency:
+  group: metrics
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
