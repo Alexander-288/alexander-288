@@ -53,9 +53,9 @@ jobs:
           plugin_music_mode: manual
           plugin_music_limit: 10
           plugin_music_tracks: |
-            Mutter - Rammstein
-            Bipolar Nightmare - Keigo Hoashi
-            Weightless - Marconi Union
+            No Surprises - Radiohead
+            Reminiscence - Florian Christl
+            505 - Arctic Monkeys
 
           # Most used languages
           plugin_languages: yes
